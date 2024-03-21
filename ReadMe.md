@@ -1,0 +1,1 @@
+This repository is for training a sentiment analysis model for the Intro to Natural Language Processing course
