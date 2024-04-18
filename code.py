@@ -106,11 +106,11 @@ imdb_data['review']=imdb_data['review'].apply(remove_stopwords)
 
 #normalized train reviews
 norm_train_reviews=imdb_data.review[:40000]
-norm_train_reviews[0]
+# norm_train_reviews[0]
 
 #Normalized test reviews
 norm_test_reviews=imdb_data.review[40000:]
-norm_test_reviews[45005]
+# norm_test_reviews[45005]
 
 
 # Bags of words model
@@ -173,3 +173,18 @@ print("lr_bow_score :",lr_bow_score)
 lr_tfidf_score=accuracy_score(test_sentiments,lr_tfidf_predict)
 print("lr_tfidf_score :",lr_tfidf_score)
 
+#word cloud for positive review words
+plt.figure(figsize=(10,10))
+positive_text=norm_train_reviews[1]
+WC=WordCloud(width=1000,height=500,max_words=500,min_font_size=5)
+positive_words=WC.generate(positive_text)
+plt.imshow(positive_words,interpolation='bilinear')
+plt.show()
+
+# Word cloud for negative review words
+plt.figure(figsize=(10,10))
+negative_text=norm_train_reviews[8]
+WC=WordCloud(width=1000,height=500,max_words=500,min_font_size=5)
+negative_words=WC.generate(negative_text)
+plt.imshow(negative_words,interpolation='bilinear')
+plt.show()
