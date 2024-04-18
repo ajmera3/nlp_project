@@ -57,6 +57,7 @@ tokenizer=ToktokTokenizer()
 stopword_list=nltk.corpus.stopwords.words('english')
 
 #Removing the html strips
+#removing the html tags and extracting the text of the html document 
 def strip_html(text):
     soup = BeautifulSoup(text, "html.parser")
     return soup.get_text()
@@ -81,42 +82,50 @@ def remove_special_characters(text, remove_digits=True):
 #Apply function on review column
 imdb_data['review']=imdb_data['review'].apply(remove_special_characters)
 
+# trying to get the words to their base form using stemming
+# so we get better accuracy
 def simple_stemmer(text):
     ps=nltk.porter.PorterStemmer()
     text= ' '.join([ps.stem(word) for word in text.split()])
     return text
-#Apply function on review column
+    
+# applying function on review column and stemming each review
 imdb_data['review']=imdb_data['review'].apply(simple_stemmer)
 
+
+#prints out all the stopwords in the NLTK library
 stop=set(stopwords.words('english'))
 print("stop: ",stop)
 
-#removing the stopwords
+#tokenizing the text and removing the stopwords
 def remove_stopwords(text, is_lower_case=False):
     tokens = tokenizer.tokenize(text)
-    tokens = [token.strip() for token in tokens]
+    tokens = [token.strip() for token in tokens] #removing trailing whitespace
     if is_lower_case:
         filtered_tokens = [token for token in tokens if token not in stopword_list]
     else:
         filtered_tokens = [token for token in tokens if token.lower() not in stopword_list]
     filtered_text = ' '.join(filtered_tokens)    
     return filtered_text
+
+
 #Apply function on review column
 imdb_data['review']=imdb_data['review'].apply(remove_stopwords)
 
-#normalized train reviews
+#creating a subset of the filtered reviews for training
 norm_train_reviews=imdb_data.review[:40000]
-norm_train_reviews[0]
+printnorm_train_reviews[0]
 
-#Normalized test reviews
+# creating a subset for testing 
 norm_test_reviews=imdb_data.review[40000:]
-norm_test_reviews[45005]
+norm_test_reviews[45005] #accessing the review at 45005 index
 
 
 # Bags of words model
 # It is used to convert text documents to numerical vectors or bag of words.
+#ignoring terms that have freq lower than 0.0 and higher than 1
 cv=CountVectorizer(min_df=0.0,max_df=1.0,binary=False,ngram_range=(1,3))
-#transformed train reviews
+#transformed train reviews 
 cv_train_reviews=cv.fit_transform(norm_train_reviews)
 #transformed test reviews
 cv_test_reviews=cv.transform(norm_test_reviews)
@@ -127,6 +136,7 @@ print('BOW_cv_test:',cv_test_reviews.shape)
 
 # Term Frequency-Inverse Document Frequency model (TFIDF)
 # It is used to convert text documents to matrix of tfidf features.
+# setting it to True enables IDF reweighting.
 tv=TfidfVectorizer(min_df=0.0,max_df=1.0,use_idf=True,ngram_range=(1,3))
 #transformed train reviews
 tv_train_reviews=tv.fit_transform(norm_train_reviews)
@@ -135,9 +145,9 @@ tv_test_reviews=tv.transform(norm_test_reviews)
 print('Tfidf_train:',tv_train_reviews.shape)
 print('Tfidf_test:',tv_test_reviews.shape)
 
-#labeling the sentient data
+#labeling the sentient i n binary formnat
 lb=LabelBinarizer()
-#transformed sentiment data
+#transformed sentiment data to 1 or 0
 sentiment_data=lb.fit_transform(imdb_data['sentiment'])
 print(sentiment_data.shape)
 
